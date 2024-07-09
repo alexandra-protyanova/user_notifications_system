@@ -9,9 +9,9 @@ This project is a microservices-based application built using NestJS, RabbitMQ, 
 - [Usage](#usage)
 - [Project Structure](#project-structure)
 
-## Features
+## Services
 
-- **User Service**: Create users, store them in PostgreSQL, and schedule notifications.
+- **User**: Create users, store them in PostgreSQL, and schedule notifications.
 - **Scheduling**: Schedule tasks using Redis and RabbitMQ.
 - **Notifications**: Send notifications via different channels (e.g., push notifications).
 
