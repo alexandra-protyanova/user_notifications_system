@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  user-service:
+    container_name: user-service
+    restart: always
+    build:
+      context: ./user-service
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: database 
+      RABBITMQ_URL: amqp://rabbitmq
+      RABBITMQ_PORT: 5672
+      USER_SERVICE_PORT: 3000
+      # replace with your own push notification destination
+      PUSH_NOTIFICATION_DESTINATION: https://webhook.site/cd910feb-cee3-4da0-b0a5-f77b93febd75
+
+  scheduling-service:
+    restart: always
+    ports:
+      - '3005:3005'
+    container_name: scheduling-service
+    build:
+      context: ./scheduling-service
+    depends_on:
+      - rabbitmq
+      - redis
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      RABBITMQ_PORT: 5672
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SCHEDULING_SERVICE_PORT: 3005
+
+  notification-service:
+    restart: always
+    container_name: notification-service
+    build:
+      context: ./notification-service
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      RABBITMQ_PORT: 5672
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: database
+      POSTGRES_USER: postgres
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+
+  redis:
+    image: redis:6
+    ports:
+      - '6379:6379'
